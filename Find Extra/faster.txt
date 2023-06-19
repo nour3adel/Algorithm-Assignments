@@ -1,0 +1,18 @@
+mint left = 0;
+    int right = arr2.Length;
+    int mid;
+
+    while (left < right)
+    {
+        mid = (left + right) >> 1;
+        if (arr1[mid] == arr2[mid])
+        {
+            left = mid + 1;
+        }
+        else
+        {
+            right = mid;
+        }
+    }
+
+    return left;

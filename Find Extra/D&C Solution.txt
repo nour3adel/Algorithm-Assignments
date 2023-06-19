@@ -1,0 +1,19 @@
+
+            int left = 0;
+            int right = arr1.Length - 1;
+            int mid;
+            while (left <= right)
+            {
+                mid = (left + right) / 2; 
+                if (mid >= arr2.Length || arr1[mid] != arr2[mid])
+                {
+                    // extra element is in the left half of arr1 or the right half of arr2
+                    right = mid - 1;
+                }
+                else
+                {
+                    // extra element is in the right half of arr1
+                    left = mid + 1;
+                }
+            }
+            return left;
