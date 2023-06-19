@@ -1,0 +1,298 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Numerics;
+using System.Runtime;
+
+namespace Problem
+{
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class IntegerMultiplication
+    {
+        #region YOUR CODE IS HERE
+
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// Multiply 2 large integers of N digits in an efficient way [Karatsuba's Method]
+        /// </summary>
+        /// <param name="X">First large integer of N digits [0: least significant digit, N-1: most signif. dig.]</param>
+        /// <param name="Y">Second large integer of N digits [0: least significant digit, N-1: most signif. dig.]</param>
+        /// <param name="N">Number of digits (power of 2)</param>
+        /// <returns>Resulting large integer of 2xN digits (left padded with 0's if necessarily) [0: least signif., 2xN-1: most signif.]</returns>
+        static public byte[] IntegerMultiply(byte[] X, byte[] Y, int N)
+        {
+
+
+            string tt;
+            //Convert byte to string
+            string A = BitConverter.ToString(X).Replace("-0", "");
+            A = A.Substring(1);
+            A = new string(A.Reverse().ToArray());
+
+
+            string B = BitConverter.ToString(Y).Replace("-0", "");
+            B = B.Substring(1);
+            B = new string(B.Reverse().ToArray());
+
+
+            if (A == "0" || B == "0")
+            {
+                string f = "0";
+                byte[] m = f.Select(c => byte.Parse(c.ToString())).ToArray();
+                return m;
+            }
+            else
+            {
+
+                if (A.Length > B.Length)
+                {
+                    B = appendZero(B, A.Length - B.Length);
+                }
+                else
+                {
+                    A = appendZero(A, B.Length - A.Length);
+                }
+                int qq = N * 2;
+                string res = Karatsuba(A, B);
+                if (qq > res.Length)
+                {
+                    tt = appendZero(res, qq - res.Length);
+                    tt = new string(tt.Reverse().ToArray());
+
+                    byte[] t = tt.Select(c => byte.Parse(c.ToString())).ToArray();
+                    
+                    return t;
+
+                }
+                else if (qq < res.Length)
+                {
+                    tt = removeZero(res);
+                    tt = new string(tt.Reverse().ToArray());
+
+                    byte[] ooo = tt.Select(c => byte.Parse(c.ToString())).ToArray();
+             
+                    return ooo;
+                }
+                else
+                {
+                    tt = res;
+                    tt = new string(tt.Reverse().ToArray());
+
+                    byte[] ppp = tt.Select(c => byte.Parse(c.ToString())).ToArray();
+                    return ppp;
+                }
+
+            }
+
+
+            #endregion
+        }
+
+
+
+
+
+        static public string Karatsuba(string x, string y)
+        {
+            if (x.Length == 1 && y.Length == 1)
+            {
+                return multiplyXY(x, y);
+            }
+
+            if (x.Length > y.Length)
+            {
+                y = appendZero(y, x.Length - y.Length);
+            }
+            else
+            {
+                x = appendZero(x, y.Length - x.Length);
+            }
+
+            if (x.Length % 2 != 0)
+            {
+                x = "0" + x;
+                y = "0" + y;
+            }
+
+            string x_left, x_right, y_left, y_right, p1, p2, p3;
+            int n = x.Length;
+
+            x_left = x.Substring(0, x.Length / 2);
+            x_right = x.Substring(x.Length / 2);
+            y_left = y.Substring(0, y.Length / 2);
+            y_right = y.Substring(y.Length / 2);
+
+            p1 = Karatsuba(x_left, y_left);
+            p2 = Karatsuba(addXY(x_left, x_right), addXY(y_left, y_right));
+            p3 = Karatsuba(x_right, y_right);
+
+            return addXY(addXY(multiply10(p1, n), multiply10(subtractXY(subtractXY(p2, p1), p3), n / 2)), p3);
+        }
+
+
+        static public string appendZero(string str, int n)
+        {
+            while (n > 0)
+            {
+                str = "0" + str;
+                n--;
+            }
+            return str;
+        }
+
+  public static string multiplyX2Y(string num1, string num2)
+        {
+            if (string.IsNullOrEmpty(num1) || string.IsNullOrEmpty(num2)) return "0";
+            if (num1 == "0" || num2 == "0") return "0";
+
+            int n1 = num1.Length, n2 = num2.Length;
+            int[] result = new int[n1 + n2];
+
+            for (int i = n1 - 1; i >= 0; i--)
+            {
+                int carry = 0;
+                int x = num1[i] - '0';
+
+                for (int j = n2 - 1; j >= 0; j--)
+                {
+                    int y = num2[j] - '0';
+                    int prod = x * y + carry + result[i + j + 1];
+                    carry = prod / 10;
+                    result[i + j + 1] = prod % 10;
+                }
+
+                result[i] += carry;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            int k = 0;
+            while (k < result.Length && result[k] == 0) k++;
+            for (; k < result.Length; k++) sb.Append(result[k]);
+            return sb.ToString();
+        }
+
+        static public string multiplyXY(string x, string y)
+        {
+            int product;
+            product = ((int)x[0] - '0') * ((int)y[0] - '0');
+            return product.ToString();
+        }
+
+
+        static public string addXY(string x, string y)
+        {
+            if (x.Length > y.Length)
+            {
+                y = appendZero(y, x.Length - y.Length);
+            }
+            else
+            {
+                x = appendZero(x, y.Length - x.Length);
+            }
+            int carry = 0, sum;
+            string result = "";
+            for (int i = x.Length - 1; i >= 0; i--)
+            {
+                sum = ((int)x[i] - '0') + ((int)y[i] - '0') + carry;
+
+                if (sum > 9)
+                {
+                    result = (sum % 10).ToString() + result;
+                    carry = sum / 10;
+                }
+                else
+                {
+                    result = sum.ToString() + result;
+                    carry = 0;
+                }
+            }
+            if (carry != 0)
+            {
+                result = carry.ToString() + result;
+            }
+            return result;
+        }
+
+        static public string subtractXY(string x, string y)
+        {
+            if (x.Length > y.Length)
+            {
+                y = appendZero(y, x.Length - y.Length);
+            }
+            else
+            {
+                x = appendZero(x, y.Length - x.Length);
+            }
+
+            string result = "";
+            int borrow = 0, a, b;
+            for (int i = x.Length - 1; i >= 0; i--)
+            {
+
+                a = (int)x[i] - '0';
+                b = (int)y[i] - '0';
+                if (borrow == 1)
+                {
+                    a = a - 1;
+                }
+                if (a >= b)
+                {
+                    result = (a - b).ToString() + result;
+                    borrow = 0;
+                }
+                else
+                {
+                    a = a + 10;
+                    result = (a - b).ToString() + result;
+                    borrow = 1;
+                }
+            }
+            return result;
+        }
+
+        public static string removeZero(string str)
+        {
+
+            string reversedString = new string(str.Reverse().ToArray());
+
+            for (int i = reversedString.Length - 1; i >= 0; i--)
+            {
+                if (reversedString[i] == '0')
+                {
+                    reversedString = reversedString.Remove(i);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (reversedString == "")
+            {
+                return "0";
+            }
+            else
+            {
+
+                string ori = new string(reversedString.Reverse().ToArray());
+                return ori;
+            }
+        }
+
+        static public string multiply10(string str, int n)
+        {
+            while (n > 0)
+            {
+                str = str + "0";
+                n--;
+            }
+            return str;
+        }
+
+    }
+}
