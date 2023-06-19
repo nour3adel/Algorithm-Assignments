@@ -1,0 +1,82 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Security.Policy;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+    public static class SumOfMin
+    {
+        #region YOUR CODE IS HERE
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// Given an UNDIRECTED Graph, calculate the sum of the min value in each connected component
+        /// </summary>
+        /// <param name="valuesOfVertices">value of each vertex (vertices are named from 0 to |V| - 1)</param>
+        /// <param name="edges">array of edges in the graph</param>
+        /// <returns>sum of the min value in each component of the graph</returns>
+        public static int CalcSumOfMinInComps(int[] valuesOfVertices, KeyValuePair<int, int>[] edges)
+        {
+            // Get the number of vertices in the graph
+            int num_of_vertices = valuesOfVertices.Length;
+
+            // Create an adjacency list for the graph
+            List<int>[] adjacencyList = new List<int>[num_of_vertices];
+            for (int i = 0; i < adjacencyList.Length; i++)
+            {
+                adjacencyList[i] = new List<int>();
+            }
+
+            // Build the adjacency list from the edges array
+            foreach (KeyValuePair<int, int> edge in edges)
+            {
+                adjacencyList[edge.Key].Add(edge.Value);
+                adjacencyList[edge.Value].Add(edge.Key);
+            }
+
+            Dictionary<int, bool> Vnode = new Dictionary<int, bool>();
+            int finalsum = 0;
+            for (int i = 0; i < num_of_vertices; i++)
+            {
+                if (!Vnode.ContainsKey(i))
+                {
+                    int smallest = BFS(i, adjacencyList, Vnode, valuesOfVertices);
+                    finalsum += smallest;
+                }
+            }
+            return finalsum;
+        }
+
+
+        #region Perform BFS
+        private static int BFS(int node, List<int>[] adjList, Dictionary<int, bool> Vnode, int[] valuesOfVertices)
+        {
+           
+            int smallest = valuesOfVertices[node];
+            Queue<int> queue = new Queue<int>();
+            queue.Enqueue(node);
+            while (queue.Count > 0)
+            {
+                int Nnode = queue.Dequeue();
+                foreach (int n in adjList[Nnode])
+                {
+                    if (!Vnode.ContainsKey(n))
+                    {
+                        Vnode[n] = true;
+                        smallest = Math.Min(smallest, valuesOfVertices[n]);
+                        queue.Enqueue(n);
+                    }
+                }
+            }
+            return smallest;
+        }
+
+        #endregion
+    }
+
+    #endregion
+}
