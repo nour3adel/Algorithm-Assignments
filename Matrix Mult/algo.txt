@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class MatrixMultiplication
+    {
+        private static int[,] Add(int[,] A, int[,] B)
+        {
+            int n = A.GetLength(0);
+            int[,] C = new int[n, n];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    C[i, j] = A[i, j] + B[i, j];
+                }
+            }
+            return C;
+        }
+        #region YOUR CODE IS HERE
+
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// Multiply 2 square matrices in an efficient way [Strassen's Method]
+        /// </summary>
+        /// <param name="M1">First square matrix</param>
+        /// <param name="M2">Second square matrix</param>
+        /// <param name="N">Dimension (power of 2)</param>
+        /// <returns>Resulting square matrix</returns>
+        static public int[,] MatrixMultiply(int[,] M1, int[,] M2, int N)
+        {
+            int[,] result = new int[N, N];
+            if (N <= 32)    
+            {
+               
+                for (int i = 0; i < N; i++)
+                {
+                    for (int j = 0; j < N; j++)
+                    {
+                        for (int k = 0; k < N; k++)
+                        {
+                            result[i, j] += M1[i, k] * M2[k, j];
+                        }
+                    }
+                }
+                return result;
+            }
+            else
+            {
+                int[,] M11 = new int[N / 2, N / 2];
+                int[,] M12 = new int[N / 2, N / 2];
+                int[,] M21 = new int[N / 2, N / 2];
+                int[,] M22 = new int[N / 2, N / 2];
+                int[,] D11 = new int[N / 2, N / 2];
+                int[,] D12 = new int[N / 2, N / 2];
+                int[,] D21 = new int[N / 2, N / 2];
+                int[,] D22 = new int[N / 2, N / 2];
+                for (int i = 0; i < N / 2; i++)
+                {
+                    for (int j = 0; j < N / 2; j++)
+                    {
+                        M11[i, j] = M1[i, j];
+                        M12[i, j] = M1[i, j + (N / 2)];
+                        M21[i, j] = M1[i + (N / 2), j];
+                        M22[i, j] = M1[i + (N / 2), j + (N / 2)];
+                        D11[i, j] = M2[i, j];
+                        D12[i, j] = M2[i, j + (N / 2)];
+                        D21[i, j] = M2[i + (N / 2), j];
+                        D22[i, j] = M2[i + N / 2, j + (N / 2)];
+                    }
+
+                }
+
+                int[,] q1 = Add(MatrixMultiply(M11, D11, N / 2), MatrixMultiply(M12, D21, N / 2));
+                int[,] q2 = Add(MatrixMultiply(M11, D12, N / 2), MatrixMultiply(M12, D22, N / 2));
+                int[,] q3 = Add(MatrixMultiply(M21, D11, N / 2), MatrixMultiply(M22, D21, N / 2));
+                int[,] q4 = Add(MatrixMultiply(M21, D12, N / 2), MatrixMultiply(M22, D22, N / 2));
+
+                // Merge the smaller matrices to form the result matrix
+                for (int i = 0; i < N / 2; i++)
+                {
+                    for (int j = 0; j < N / 2; j++)
+                    {
+                        result[i, j] = q1[i, j];
+                        result[i, j + N / 2] = q2[i, j];
+                        result[i + N / 2, j] = q3[i, j];
+                        result[i + N / 2, j + N / 2] = q4[i, j];
+                    }
+                }
+            }
+            return result;
+
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,149 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class MatrixMultiplication
+    {
+        #region YOUR CODE IS HERE
+
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// Multiply 2 square matrices in an efficient way [Strassen's Method]
+        /// </summary>
+        /// <param name="M1">First square matrix</param>
+        /// <param name="M2">Second square matrix</param>
+        /// <param name="N">Dimension (power of 2)</param>
+        /// <returns>Resulting square matrix</returns>
+        // Function to multiply two matrices using Strassen's algorithm in parallel execution
+        static public int[,] MatrixMultiply(int[,] M1, int[,] M2, int N)
+        {
+            // Standard algorithm for small matrices  ==> O(N^3) 
+
+            if (N <= 64)    //threshold is between ( 64 - 128 )    
+            {
+                int[,] result = new int[N, N];
+                for (int i = 0; i < N; i++)
+                {
+                    for (int j = 0; j < N; j++)
+                    {
+                        for (int k = 0; k < N; k++)
+                        {
+                            result[i, j] += M1[i, k] * M2[k, j];
+                        }
+                    }
+                }
+                return result;
+            }
+            // Strassen's algorithm for large matrices
+            // T(N) = 7 T(N/2) + O(N^2)        =====>  O(N^2.81)
+
+            else
+            {
+                // divide matrices into submatrices
+                int halfN = N / 2;
+                //First Matrix M1  ( 4 Parts )
+                int[,] A11 = new int[halfN, halfN];
+                int[,] A12 = new int[halfN, halfN];
+                int[,] A21 = new int[halfN, halfN];
+                int[,] A22 = new int[halfN, halfN];
+                //First Matrix M2  ( 4 Parts )
+                int[,] B11 = new int[halfN, halfN];
+                int[,] B12 = new int[halfN, halfN];
+                int[,] B21 = new int[halfN, halfN];
+                int[,] B22 = new int[halfN, halfN];
+                for (int i = 0; i < halfN; i++)
+                {
+                    for (int j = 0; j < halfN; j++)
+                    {
+                        A11[i, j] = M1[i, j];
+                        A12[i, j] = M1[i, j + halfN];
+                        A21[i, j] = M1[i + halfN, j];
+                        A22[i, j] = M1[i + halfN, j + halfN];
+                        B11[i, j] = M2[i, j];
+                        B12[i, j] = M2[i, j + halfN];
+                        B21[i, j] = M2[i + halfN, j];
+                        B22[i, j] = M2[i + halfN, j + halfN];
+                    }
+                }
+
+                // compute submatrices recursively in parallel
+            
+                int[,] P1 = MatrixMultiply(A11, SubMatrix(B12, B22, halfN), halfN);
+                int[,] P2 = MatrixMultiply(AddMatrix(A11, A12, halfN), B22, halfN);
+                int[,] P3 = MatrixMultiply(AddMatrix(A21, A22, halfN), B11, halfN);
+                int[,] P4 = MatrixMultiply(A22, SubMatrix(B21, B11, halfN), halfN);
+                int[,] P5 = MatrixMultiply(AddMatrix(A11, A22, halfN), AddMatrix(B11, B22, halfN), halfN);
+                int[,] P6 = MatrixMultiply(SubMatrix(A12, A22, halfN), AddMatrix(B21, B22, halfN), halfN);
+                int[,] P7 = MatrixMultiply(SubMatrix(A11, A21, halfN), AddMatrix(B11, B12, halfN), halfN);
+
+                // combine submatrices into result
+                int[,] C11 = SubMatrix(AddMatrix(AddMatrix(P5, P4, halfN), P6, halfN), P2, halfN);
+                int[,] C12 = AddMatrix(P1, P2, halfN);
+                int[,] C21 = AddMatrix(P3, P4, halfN);
+                int[,] C22 = SubMatrix(SubMatrix(AddMatrix(P5, P1, halfN), P3, halfN), P7, halfN);
+                int[,] result = new int[N, N];
+
+                // combine submatrices into result
+                for (int i = 0; i < halfN; i++)
+                {
+                    for (int j = 0; j < halfN; j++)
+                    {
+                        result[i, j] = C11[i, j];
+                        result[i, j + halfN] = C12[i, j];
+                        result[i + halfN, j] = C21[i, j];
+                        result[i + halfN, j + halfN] = C22[i, j];
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        // Function to add two matrices
+        static public int[,] AddMatrix(int[,] A, int[,] B, int N)
+        {
+            int[,] result = new int[N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    result[i, j] = A[i, j] + B[i, j];
+                }
+            }
+            return result;
+        }
+
+        // Function to subtract two matrices
+        static public int[,] SubMatrix(int[,] A, int[,] B, int N)
+        {
+            int[,] result = new int[N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    result[i, j] = A[i, j] - B[i, j];
+                }
+            }
+            return result;
+        }
+
+
+        #endregion
+    }
+}
+
+
+
+
+
+
+

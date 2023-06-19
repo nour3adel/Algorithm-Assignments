@@ -1,0 +1,44 @@
+ static public int[,] MatrixMultiply(int[,] M1, int[,] M2, int N)
+        {
+            // Standard algorithm for small matrices  ==> O(N^3)
+
+            int[,] result = new int[N, N];
+
+            // Transpose second matrix for better cache locality
+            int[,] M2T = new int[N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    M2T[j, i] = M2[i, j];
+                }
+            }
+
+            // Cache-friendly iteration
+            for (int j = 0; j < N; j++)
+            {
+                for (int i = 0; i < N; i++)
+                {
+                    int sum = 0;
+
+                    // Loop unrolling
+                    for (int k = 0; k < N - 3; k += 4)
+                    {
+                        sum += M1[i, k] * M2T[j, k]
+                             + M1[i, k + 1] * M2T[j, k + 1]
+                             + M1[i, k + 2] * M2T[j, k + 2]
+                             + M1[i, k + 3] * M2T[j, k + 3];
+                    }
+
+                    // Handle remaining elements
+                    for (int k = N - (N % 4); k < N; k++)
+                    {
+                        sum += M1[i, k] * M2T[j, k];
+                    }
+
+                    result[i, j] = sum;
+                }
+            }
+
+            return result;
+        }
