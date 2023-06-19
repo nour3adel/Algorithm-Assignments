@@ -1,0 +1,204 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class TextPlagiarism
+    {
+        #region YOUR CODE IS HERE
+
+        #region  Compute
+        static public int[] abelwahb_compute(string[] w, string[] new_p)
+        {
+            int[] num = new int[new_p.Length + 1];
+            int i = 1;
+            while (i <= w.Length)
+            {
+                int st = 0;
+                int j = 1;
+                while (j <= new_p.Length)
+                {
+                    int new_num = num[j];
+                    if (w[i - 1] == new_p[j - 1])
+                        num[j] = st + 1;
+                    else
+                        num[j] = Math.Max(num[j - 1], num[j]);
+                    st = new_num;
+                    j++;
+                }
+                i++;
+            }
+            return num;
+        }
+        #endregion
+
+        #region FUNCTION#1: Calculate the Value
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// Given a paragraph and a complete text, find the plagiarism similarity of the give paragraph vs the given text.
+        /// Plagiarism similarity = max common subsequence of words between the given paragraph and EACH paragraph in the given text
+        /// Comparison is case IN-SENSITIVE (i.e. Cat = CAT = cat = CaT)
+        /// Definitions:
+        ///     Word: a set of continuous characters seperated by space or tab (Words seperator: ' ' '\t')
+        ///     Paragraph in Text: any continuous set of words/chars ended by new line(s) (Paragraphs seperator: '\n' '\r')
+        /// </summary>
+        /// <param name="paragraph">query paragraph</param>
+        /// <param name="text">complete text (consists of 1 or more paragraph(s)</param>
+        /// <returns>Plagiarism similarity between the query paragraph and the complete text</returns>
+        static public int SolveValue(string paragraph, string text)
+        {
+            string[] abdelwahab_para = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] new_p = paragraph.ToLower().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            int abdelwahab_large = 0;
+            int abd_loc = 0;
+            while (abd_loc < abdelwahab_para.Length)
+            {
+                string ah = abdelwahab_para[abd_loc];
+                string[] w = ah.ToLower().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (w.Length < abdelwahab_large)
+                {
+                    abd_loc++;
+                    continue;
+                }
+                int[] ab_numlist = abelwahb_compute(w, new_p);
+                abdelwahab_large = Math.Max(abdelwahab_large, ab_numlist[new_p.Length]);
+                abd_loc++;
+            }
+            return abdelwahab_large;
+        }
+        #endregion
+
+        #region Maximum Sequence
+        static List<string> abdo_maxSeq(int[,] w, string[] para, string[] new_p)
+        {
+            List<string> abdo_mxsq = new List<string>();
+            int pos1 = w[para.Length, new_p.Length] - 1;
+            int pos2 = para.Length;
+            int pos3 = new_p.Length;
+
+            while (pos1 >= 0 && pos2 > 0 && pos3 > 0)
+            {
+                switch (true)
+                {
+                    case bool _ when para[pos2 - 1] == new_p[pos3 - 1]:
+                        abdo_mxsq.Insert(0, para[pos2 - 1]);
+                        pos1--;
+                        pos2--;
+                        pos3--;
+                        break;
+                    case bool _ when w[pos2 - 1, pos3] > w[pos2, pos3 - 1]:
+                        pos2--;
+                        break;
+                    default:
+                        pos3--;
+                        break;
+                }
+            }
+            return abdo_mxsq;
+        }
+        #endregion
+
+        #region FUNCTION#2: Construct the Solution
+
+        //Your Code is Here:
+        //==================
+        /// <returns>the common subsequence words themselves (if any) or null if no common words </returns>
+        static public string[] ConstructSolution(string paragraph, string text)
+        {
+            string[] abdelwahab_para = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] new_p = paragraph.ToLower().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            int abdelwahab_large = 0;
+            List<string> larhest_pat = null;
+
+            for (int abd_loc = 0; abd_loc < abdelwahab_para.Length; abd_loc++)
+            {
+                string x = abdelwahab_para[abd_loc];
+                if (new_p.Length > x.Length)
+                {
+                    continue;
+                }
+
+                string[] para = x.ToLower().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (para.Length < abdelwahab_large)
+                {
+                    continue;
+                }
+
+                int[,] abdo_w = abdo_calcw(para, new_p);
+
+                switch (abdo_w[para.Length, new_p.Length] > abdelwahab_large)
+                {
+                    case true:
+                        abdelwahab_large = abdo_w[para.Length, new_p.Length];
+                        larhest_pat = abdo_maxSeq(abdo_w, para, new_p);
+                        break;
+                    case false:
+                        break;
+                }
+            }
+
+            if (larhest_pat != null)
+            {
+                return larhest_pat.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+
+           
+        }
+
+        #endregion
+
+        #region   Calculate W
+        static int[,] abdo_calcw(string[] para, string[] new_p)
+        {
+            int[,] abdo_w = new int[para.Length + 1, new_p.Length + 1];
+            int ab_idx1 = 1;
+            int ab_idx2 = 1;
+
+            do
+            {
+                if (para[ab_idx1 - 1] == new_p[ab_idx2 - 1])
+                {
+                    abdo_w[ab_idx1, ab_idx2] = abdo_w[ab_idx1 - 1, ab_idx2 - 1] + 1;
+                }
+                else
+                {
+                    abdo_w[ab_idx1, ab_idx2] = Math.Max(abdo_w[ab_idx1 - 1, ab_idx2], abdo_w[ab_idx1, ab_idx2 - 1]);
+                }
+
+                if (ab_idx2 < new_p.Length)
+                {
+                    ab_idx2++;
+                }
+                else if (ab_idx1 < para.Length)
+                {
+                    ab_idx1++;
+                    ab_idx2 = 1;
+                }
+                else
+                {
+                    break;
+                }
+            } while (true);
+
+            return abdo_w;
+        }
+
+        #endregion
+
+
+        #endregion
+    }
+}
