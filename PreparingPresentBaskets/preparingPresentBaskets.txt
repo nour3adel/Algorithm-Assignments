@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class PresentBaskets
+    {
+        #region YOUR CODE IS HERE
+        /// <summary>
+        /// fill the 2 baskets with the most expensive collection of fruits.
+        /// </summary>
+        /// <param name="W1">weight of 1st basket</param>
+        /// <param name="W2">weight of 2nd basket</param>
+        /// <param name="items">Pair of weight (Key) & cost (Value) of each item</param>
+        /// <returns>max total cost to fill two baskets</returns>
+        public static double PreparePresentBaskets(int W1, int W2, KeyValuePair<int, int>[] items)
+        {
+            int W = W1 + W2;
+
+            // Calculate the value per unit weight of each fruit
+            List<KeyValuePair<double, int>> valuePerWeight = new List<KeyValuePair<double, int>>();
+            foreach (KeyValuePair<int, int> item in items)
+            {
+                if (item.Key == 0) continue; // skip items with zero weight
+                double valPerWeight = (double)item.Value / item.Key;
+                valuePerWeight.Add(new KeyValuePair<double, int>(valPerWeight, item.Key));
+            }
+
+            // Sort the fruits in descending order of their value per unit weight
+            valuePerWeight.Sort((x, y) => y.Key.CompareTo(x.Key));
+
+            // Fill the basket with the fruits with the highest value per unit weight
+            int i = 0;
+            double totalCost = 0;
+            while (W > 0 && i < valuePerWeight.Count)
+            {
+                int weight = Math.Min(W, valuePerWeight[i].Value);
+                totalCost += weight * valuePerWeight[i].Key;
+                W -= weight;
+                i++;
+            }
+
+            return totalCost;
+
+        }
+
+        #endregion
+    }
+}
