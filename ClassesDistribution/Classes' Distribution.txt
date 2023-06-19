@@ -1,0 +1,64 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Problem
+{
+    // *****************************************
+    // DON'T CHANGE CLASS OR FUNCTION NAME
+    // YOU CAN ADD FUNCTIONS IF YOU NEED TO
+    // *****************************************
+    public static class ClassesDistribution
+    {
+        #region YOUR CODE IS HERE
+
+        //Your Code is Here:
+        //==================
+        /// <summary>
+        /// determine if there exists such a lucky class and determine its grade.
+        /// </summary>
+        /// <param name="N">Size of the array</param>
+        /// <param name="array">array containing the grade number in each floor</param>
+        /// <returns>if exist: return grade of the lucky class (whose grade is in the same floor number) 
+        ///         else: return -1</returns>
+        public static int GetLuckyClass(int N, int[] array)
+        {
+            int left = 0;
+            int right = N - 1;
+            int lastMatch = -1; // keep track of the last matching index found
+
+            while (left <= right)
+            {
+                int mid = left + (right - left) / 2;
+                if (array[mid] == mid)
+                {
+                    lastMatch = mid;
+                    right = mid - 1; // continue searching in the left half
+                }
+                else if (array[mid] < mid)
+                {
+                    left = mid + 1;
+                }
+                else
+                {
+                    right = mid - 1;
+                }
+            }
+
+            if (lastMatch != -1)
+            {
+                return array[lastMatch]; // return the grade of the last matching index found
+            }
+            else
+            {
+                return -1; // no lucky class found
+            }
+        }
+
+
+
+        #endregion
+    }
+}
