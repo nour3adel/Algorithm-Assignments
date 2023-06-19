@@ -1,0 +1,129 @@
+1D
+
+    public static int SolveValue(int camelsLoad, int itemsCount, int[] weights, int[] profits, int[] instances)
+        {
+            // Initialize the dp table
+            int[] dp = new int[camelsLoad + 1];
+
+            // Iterate over all item types
+            for (int i = 1; i <= itemsCount; i++)
+            {
+                int weight = weights[i];
+                int profit = profits[i];
+                int instance = instances[i];
+
+                // Iterate over all possible weights
+                for (int w = camelsLoad; w >= weight; w--)
+                {
+                    // Calculate the maximum number of instances that can be taken for this weight
+                    int max_instances = Math.Min(instance, w / weight);
+
+                    // Update the dp table
+                    for (int k = 1; k <= max_instances; k++)
+                    {
+                        dp[w] = Math.Max(dp[w], dp[w - k * weight] + k * profit);
+                    }
+                }
+            }
+
+            return dp[camelsLoad];
+        }
+
+
+do while 
+
+ public static int SolveValue(int maxLoad, int itemCount, int[] itemWeights, int[] itemProfits, int[] itemInstances)
+        {
+            // Initialize the dp table
+            int[] dp = new int[maxLoad + 1];
+
+            // Iterate over all item types
+            for (int i = 1; i <= itemCount; i++)
+            {
+                int weight = itemWeights[i];
+                int profit = itemProfits[i];
+                int instance = itemInstances[i];
+
+                // Iterate over all possible weights
+                for (int w = maxLoad; w >= weight; w--)
+                {
+                    // Calculate the maximum number of instances that can be taken for this weight
+                    int maxInstances = Math.Min(instance, w / weight);
+
+                    // Update the dp table
+                    int k = 1;
+                    do
+                    {
+                        dp[w] = Math.Max(dp[w], dp[w - k * weight] + k * profit);
+                        k++;
+                    } while (k <= maxInstances);
+                }
+            }
+
+            return dp[maxLoad];
+        }
+
+
+
+
+
+   public static Tuple<int, int>[] ConstructSolution(int camelsLoad, int itemsCount, int[] weights, int[] profits, int[] instances)
+        {
+            // Initialize the dp table
+            int[] dp = new int[camelsLoad + 1];
+
+            // Initialize the chosen items table
+            int[][] chosen = new int[camelsLoad + 1][];
+            for (int i = 0; i <= camelsLoad; i++)
+            {
+                chosen[i] = new int[itemsCount];
+            }
+
+            // Iterate over the items
+            for (int i = 1; i <= itemsCount; i++)
+            {
+                int weight = weights[i];
+                int profit = profits[i];
+                int instance = instances[i];
+                for (int j = camelsLoad; j >= weight; j--)
+                {
+                    // Binary search to find the maximum value of k that satisfies the condition
+                    int left = 0;
+                    int right = Math.Min(instance, j / weight);
+                    while (left < right)
+                    {
+                        int mid = left + (right - left + 1) / 2;
+                        if (dp[j - mid * weight] + mid * profit > dp[j])
+                        {
+                            left = mid;
+                        }
+                        else
+                        {
+                            right = mid - 1;
+                        }
+                    }
+
+                    // Update dp and chosen tables
+                    if (left > 0)
+                    {
+                        dp[j] = dp[j - left * weight] + left * profit;
+                        Array.Copy(chosen[j - left * weight], chosen[j], itemsCount);
+                        chosen[j][i - 1] += left;
+                    }
+                }
+            }
+
+            List<Tuple<int, int>> result = new List<Tuple<int, int>>();
+            for (int i = 0; i < itemsCount; i++)
+            {
+                if (chosen[camelsLoad][i] > 0)
+                {
+                    result.Add(Tuple.Create(i + 1, chosen[camelsLoad][i]));
+                }
+            }
+
+            return result.ToArray();
+        }
+
+
+
